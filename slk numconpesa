@@ -1,0 +1,378 @@
+--// Cleather Hub - Estilo Redz/Coquette (Delta & KRNL Mobile)
+-- Removido "Farm". Inclui: Troll -> Sofá do Void (com input de nick, abrir/fechar)
+
+-- =======================
+-- Proteção múltipla
+-- =======================
+local CoreGui = game:GetService("CoreGui")
+if CoreGui:FindFirstChild("CleatherHub") then
+    CoreGui.CleatherHub:Destroy()
+end
+
+-- =======================
+-- UI Base
+-- =======================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CleatherHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = CoreGui
+
+-- Janela principal
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 520, 0, 340)
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -170)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+
+local Stroke = Instance.new("UIStroke", MainFrame)
+Stroke.Thickness = 2
+Stroke.Color = Color3.fromRGB(255, 0, 100)
+
+-- Topo
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0, 44)
+TopBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 12)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Position = UDim2.new(0, 12, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.Text = "Cleather Hub 😎🔥"
+Title.TextSize = 20
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TopBar
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 40, 1, 0)
+CloseButton.Position = UDim2.new(1, -44, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.TextSize = 20
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Parent = TopBar
+Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 10)
+CloseButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+end)
+
+-- Botão Abrir/Fechar flutuante
+local OpenButton = Instance.new("TextButton")
+OpenButton.Size = UDim2.new(0, 130, 0, 50)
+OpenButton.Position = UDim2.new(0, 20, 0.5, -25)
+OpenButton.BackgroundColor3 = Color3.fromRGB(70, 70, 255)
+OpenButton.Font = Enum.Font.GothamBold
+OpenButton.TextSize = 18
+OpenButton.Text = "Abrir Hub"
+OpenButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenButton.Parent = ScreenGui
+Instance.new("UICorner", OpenButton).CornerRadius = UDim.new(0, 12)
+
+OpenButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Menu lateral (categorias)
+local SideMenu = Instance.new("Frame")
+SideMenu.Size = UDim2.new(0, 140, 1, -44)
+SideMenu.Position = UDim2.new(0, 0, 0, 44)
+SideMenu.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+SideMenu.BorderSizePixel = 0
+SideMenu.Parent = MainFrame
+
+local CatList = Instance.new("UIListLayout", SideMenu)
+CatList.SortOrder = Enum.SortOrder.LayoutOrder
+CatList.Padding = UDim.new(0, 6)
+
+-- Área principal
+local ContentFrame = Instance.new("ScrollingFrame")
+ContentFrame.Size = UDim2.new(1, -140, 1, -44)
+ContentFrame.Position = UDim2.new(0, 140, 0, 44)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.ScrollBarThickness = 6
+ContentFrame.Parent = MainFrame
+
+local ButtonList = Instance.new("UIListLayout", ContentFrame)
+ButtonList.SortOrder = Enum.SortOrder.LayoutOrder
+ButtonList.Padding = UDim.new(0, 6)
+
+-- Helpers UI
+local function MakeCatButton(name)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -12, 0, 36)
+    b.Position = UDim2.new(0, 6, 0, 0)
+    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    b.Font = Enum.Font.GothamBold
+    b.Text = name
+    b.TextSize = 16
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.Parent = SideMenu
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
+    return b
+end
+
+local function MakeButton(text, callback)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -14, 0, 38)
+    b.Position = UDim2.new(0, 7, 0, 0)
+    b.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    b.Font = Enum.Font.GothamBold
+    b.Text = text
+    b.TextSize = 16
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.Parent = ContentFrame
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
+    b.MouseButton1Click:Connect(callback)
+    return b
+end
+
+local function MakeTextBox(labelText, placeholder, onChange)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, -14, 0, 64)
+    container.Position = UDim2.new(0, 7, 0, 0)
+    container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    container.BorderSizePixel = 0
+    container.Parent = ContentFrame
+    Instance.new("UICorner", container).CornerRadius = UDim.new(0, 10)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -16, 0, 24)
+    lbl.Position = UDim2.new(0, 8, 0, 6)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = labelText
+    lbl.TextSize = 14
+    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = container
+
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, -16, 0, 28)
+    box.Position = UDim2.new(0, 8, 0, 30)
+    box.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    box.Font = Enum.Font.Gotham
+    box.PlaceholderText = placeholder
+    box.Text = ""
+    box.TextSize = 14
+    box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    box.ClearTextOnFocus = false
+    box.Parent = container
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 8)
+
+    box.FocusLost:Connect(function(enterPressed)
+        if onChange then
+            onChange(box.Text)
+        end
+    end)
+
+    return box
+end
+
+-- =======================
+-- Categorias (sem Farm)
+-- =======================
+local TrollCat = MakeCatButton("Troll")
+local VisualCat = MakeCatButton("Visual")
+local MiscCat = MakeCatButton("Misc")
+
+-- Troca de “aba” simples (limpa e repopula)
+local function ClearContent()
+    for _, c in ipairs(ContentFrame:GetChildren()) do
+        if c:IsA("GuiObject") then c:Destroy() end
+    end
+    Instance.new("UIListLayout", ContentFrame).Padding = UDim.new(0, 6)
+    ContentFrame.ScrollBarThickness = 6
+end
+
+-- =======================
+-- Lógica: Sofá do Void
+-- =======================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local SofaTargetName = ""
+local SofaActive = false
+local SofaConn -- heartbeat connection
+local SeatObj -- seat we spawn/follow with
+local SavedCF -- player original position
+
+local function CleanupSofa()
+    SofaActive = false
+    if SofaConn then SofaConn:Disconnect() SofaConn = nil end
+    if SeatObj and SeatObj.Parent then SeatObj:Destroy() end
+    SeatObj = nil
+end
+
+local function Notify(msg, dur)
+    pcall(function()
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Cleather Hub",
+            Text = msg,
+            Duration = dur or 3
+        })
+    end)
+end
+
+local function GetHRP(char)
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart")
+end
+
+local function EnsureSeat()
+    if SeatObj and SeatObj.Parent then return SeatObj end
+    local seat = Instance.new("Seat")
+    seat.Name = "CleatherSeat"
+    seat.Anchored = true
+    seat.CanCollide = true
+    seat.Transparency = 0.2
+    seat.TopSurface = Enum.SurfaceType.Smooth
+    seat.BottomSurface = Enum.SurfaceType.Smooth
+    seat.Parent = workspace
+    SeatObj = seat
+    return seat
+end
+
+local function TeleportHRPSafe(char, cf)
+    local hrp = GetHRP(char)
+    if hrp then
+        hrp.CFrame = cf
+    end
+end
+
+local function ToggleSofaVoid(targetName)
+    if SofaActive then
+        CleanupSofa()
+        Notify("Sofá do Void desativado.")
+        return
+    end
+
+    local target = Players:FindFirstChild(targetName or "")
+    if not target or not target.Character or not GetHRP(target.Character) then
+        Notify("Alvo não encontrado ou sem personagem.")
+        return
+    end
+
+    local myChar = LocalPlayer.Character
+    if not myChar or not GetHRP(myChar) then
+        Notify("Seu personagem não está pronto.")
+        return
+    end
+
+    SavedCF = GetHRP(myChar).CFrame
+    SofaActive = true
+    Notify("Sofá do Void ativado para: "..target.Name)
+
+    local seat = EnsureSeat()
+
+    -- Loop de perseguição + detecção de sentar
+    SofaConn = RunService.Heartbeat:Connect(function()
+        if not SofaActive then return end
+
+        local tChar = target.Character
+        local tHRP = GetHRP(tChar)
+        local mChar = LocalPlayer.Character
+        local mHRP = GetHRP(mChar)
+
+        if not tChar or not tHRP or not mChar or not mHRP then
+            CleanupSofa()
+            Notify("Perdeu o alvo ou você resetou.")
+            return
+        end
+
+        -- Mantém o assento grudado no alvo (atrás/um pouco abaixo)
+        local followOffset = CFrame.new(0, -1, 0.8) -- ajuste fino pra facilitar o "sit"
+        seat.CFrame = tHRP.CFrame * followOffset
+
+        -- Te mantém junto do assento
+        mHRP.CFrame = seat.CFrame * CFrame.new(0, 2.5, -2)
+
+        -- Verifica se o alvo sentou (Seat.Occupant) ou SeatWeld
+        local occupant = seat.Occupant
+        local seatedTarget = (occupant and occupant.Parent == tChar)
+
+        local hasSeatWeld = false
+        if seat:FindFirstChild("SeatWeld") then
+            local sw = seat.SeatWeld
+            if sw.Part1 and sw.Part1.Parent == tChar then
+                hasSeatWeld = true
+            end
+        end
+
+        if seatedTarget or hasSeatWeld then
+            -- Leva tudo pro void
+            local voidCF = CFrame.new(0, -800, 0)
+            seat.CFrame = voidCF
+            mHRP.CFrame = voidCF * CFrame.new(0, 3, 0)
+            -- pequena espera
+            task.wait(1.0)
+            -- Volta você pro lugar original
+            TeleportHRPSafe(mChar, SavedCF)
+            CleanupSofa()
+            Notify("Alvo despachado pro void 😈")
+        end
+    end)
+end
+
+-- =======================
+-- GUI: Aba Troll (com input e botões)
+-- =======================
+local function BuildTrollTab()
+    ClearContent()
+
+    -- Input de Nick
+    local NickBox = MakeTextBox("Nick do Alvo", "Digite o nick exato...", function(text)
+        SofaTargetName = text or ""
+    end)
+
+    -- Ativar
+    MakeButton("Sofá do Void (Ativar)", function()
+        if SofaTargetName == "" then
+            Notify("Digite o nick do alvo primeiro.")
+            return
+        end
+        ToggleSofaVoid(SofaTargetName)
+    end)
+
+    -- Parar manualmente
+    MakeButton("Parar Sofá do Void", function()
+        if SofaActive then
+            CleanupSofa()
+            Notify("Sofá do Void desativado manualmente.")
+        else
+            Notify("A função não está ativa.")
+        end
+    end)
+
+    -- Aviso
+    MakeButton("Aviso de Teste", function()
+        Notify("Cleather Hub online (Aba Troll).")
+    end)
+end
+
+local function BuildVisualTab()
+    ClearContent()
+    MakeButton("Em breve…", function() Notify("Visual: em breve.") end)
+end
+
+local function BuildMiscTab()
+    ClearContent()
+    MakeButton("Em breve…", function() Notify("Misc: em breve.") end)
+end
+
+-- Liga as categorias
+TrollCat.MouseButton1Click:Connect(BuildTrollTab)
+VisualCat.MouseButton1Click:Connect(BuildVisualTab)
+MiscCat.MouseButton1Click:Connect(BuildMiscTab)
+
+-- Abre com Troll por padrão
+BuildTrollTab()
